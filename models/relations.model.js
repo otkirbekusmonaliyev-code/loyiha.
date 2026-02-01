@@ -1,22 +1,31 @@
-const {User} = require('./user.model');
-const {Task} = require('./task.model');
-const {SubTask} = require('./subTask.model');
-const {Tag} = require('./tag.model');
+const { User } = require('./user.model');
+const { Task } = require('./task.model');
+const { SubTask } = require('./subTask.model');
+const { Tag } = require('./tag.model');
+const { TaskTags } = require('./TaskTags.model');
 
+// ====================
 // 1. User <-> Task (One-to-Many)
-// Har bir User ko'plab Task-larga ega bo'lishi mumkin
-User.hasMany(Task, {foreignKey: 'userId', as: 'tasks', onDelete: 'CASCADE'}) // User o'chsa, unga tegishli hamma tasklar ham o'chadi (ai qilib berdi !!! :) )
-Task.belongsTo(User, {foreignKey: 'userId', as: 'owner'})
+User.hasMany(Task, { foreignKey: 'userId', as: 'task'});
+Task.belongsTo(User, { foreignKey: 'userId', as: 'owner' });
 
+// ====================
 // 2. Task <-> SubTask (One-to-Many)
-// Har bir Task ko'plab SubTask-larga ega bo'lishi mumkin
-Task.hasMany(SubTask, {foreignKey: 'taskId',  as: 'subtasks', onDelete: 'CASCADE'})
-SubTask.belongsTo(Task, {foreignKey: 'taskId', as: 'mainTask'})
+Task.hasMany(SubTask, { foreignKey: 'taskId', as: 'subtasks' });
+SubTask.belongsTo(Task, { foreignKey: 'taskId', as: 'mainTask' });
 
+// ====================
 // 3. Task <-> Tag (Many-to-Many)
-// Task ko'plab Tag-larga ega bo'lishi mumkin va aksincha.
-// Buning uchun "TaskTags" nomli bog'lovchi jadval ishlatiladi.
-Task.belongsToMany(Tag, {through: 'TaskTags', as: 'tags', foreignKey: 'taskId'})
-Tag.belongsToMany(Task, {through: 'TaskTags', as: 'tasks', foreignKey: 'tagId'})
+// Bu yerda Tag modelidagi assotsiatsiya nomini 'taggedTasks' ga o'zgartirdik
+Task.belongsToMany(Tag, { through: TaskTags, as: 'tags', foreignKey: 'taskId' });
+Tag.belongsToMany(Task, { through: TaskTags, as: 'task', foreignKey: 'tagId' });
 
-module.exports = { User, Task, SubTask, Tag };
+// ====================
+// 4. TaskTags -> Task & Tag (For include in controller)
+TaskTags.belongsTo(Task, { foreignKey: 'taskId', as: 'task' });
+TaskTags.belongsTo(Tag, { foreignKey: 'tagId', as: 'tag' });
+
+Task.hasMany(TaskTags, { foreignKey: 'taskId' });
+Tag.hasMany(TaskTags, { foreignKey: 'tagId' });
+
+module.exports = { User, Task, SubTask, Tag, TaskTags };

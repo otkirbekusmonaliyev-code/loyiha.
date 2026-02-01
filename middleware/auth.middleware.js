@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User } = require("../model/relations.model.js");
+const { User } = require("../models/relations.model.js");
 require("dotenv").config()
 
 const checkToken = async (req, res, next) => {
@@ -28,12 +28,11 @@ const checkToken = async (req, res, next) => {
 
     req.user = user;
 
-    next();
+    next()
+
   } catch (error) {
-    return res.json({
-      message: error.message,
-    });
+    console.log(error.message)
   }
-};
+}
 
 module.exports = { checkToken };

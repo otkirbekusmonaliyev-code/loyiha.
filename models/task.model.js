@@ -9,6 +9,11 @@ const Task = sequelize.define(
             autoIncrement: true,
             primaryKey: true,
         },
+        userId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            unique: true
+        },
         title: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -41,4 +46,5 @@ const Task = sequelize.define(
         timestamps: true,
     },
 )
-module.exports = { Task }
+
+module.exports = {Task} 

@@ -1,19 +1,15 @@
 const { where } = require("sequelize");
-const { User } = require("../models/relations.model.js")
-const { Task } = require("../models/relations.model.js")
+const { Task, SubTask } = require("../models/relations.model.js")
 
 const CREATE = async (req, res) => {
     let reqBody = req.body
 
-    const { userId, title, description, isCompleted, priority, dueDate } = reqBody;
+    const { taskId, title, isCompleted } = reqBody;
 
-        const newData = await Task.create({
-        userId,
+        const newData = await SubTask.create({
+        taskId,
         title,
-        description,
-        isCompleted,
-        priority,
-        dueDate,
+        isCompleted
     })
     
     return res.json({
@@ -24,22 +20,22 @@ const CREATE = async (req, res) => {
 }
 
 const GET = async (req, res) => {
-    const data = await Task.findAll({
-        include: { model: User, as: 'owner' },
+    const data = await SubTask.findAll({
+        include: { model: Task, as: 'mainTask' },
     })
     res.json({
         message: "Success",
         data: data,
-    });
+    })
 }
 
 const GET_BY_ID = async (req, res) => {
-    const { id } = req.params;
+    const { id } = req.params
 
     try {
-        const data = await Task.findByPk(id, {
+        const data = await SubTask.findByPk(id, {
             include: [
-                { model: User, as: "owner" }
+                { model: Task, as: "mainTask" }
             ]
         })
 
@@ -60,7 +56,7 @@ const DELETE = async (req, res) => {
     const { id } = req.params
 
     try {
-        const deleted = await Task.destroy({
+        const deleted = await SubTask.destroy({
             where: { id }
         })
 
@@ -77,11 +73,11 @@ const DELETE = async (req, res) => {
 
 const UPDATE = async (req, res) => {
     const { id } = req.params
-    const { userId, title, description, isCompleted, priority, dueDate } = req.body
+    const { title, isCompleted } = req.body
 
     try {
-        const [updatedRows] = await Task.update(
-            { userId, title, description, isCompleted, priority, dueDate },
+        const [updatedRows] = await SubTask.update(
+            { title, isCompleted },
             { where: { id } }
         )
 
@@ -89,11 +85,11 @@ const UPDATE = async (req, res) => {
             return res.json({ message: "Task topilmadi" })
         }
 
-        const updatedTask = await Task.findByPk(id, {
-            include: { model: User, as: "owner" } 
+        const updatedTask = await SubTask.findByPk(id, {
+            include: { model: Task, as: "mainTask" } 
         })
 
-        res.json({
+        return res.json({
             message: "Yangilandi",
             data: updatedTask
         })
